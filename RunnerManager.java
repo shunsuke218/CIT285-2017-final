@@ -213,8 +213,8 @@ public class RunnerManager extends JFrame {
 		BibField.setText(String.valueOf(runner.getBib()));
 		DivField.setText(runner.getDiv());
 		AgeField.setText(String.valueOf(runner.getAge()));
-		HalfField.setText(runner.getHalfAsString());
-		FinishField.setText(runner.getFinishAsString());
+		HalfField.setText(runner.getHalfAsString().substring(1));
+		FinishField.setText(runner.getFinishAsString().substring(1));
 
 		PacePerMileField.setText(String.valueOf(runner.getPacePerMileAsString()));
 		PacePerKiloField.setText(String.valueOf(runner.getPacePerKiloAsString()));
@@ -339,7 +339,7 @@ public class RunnerManager extends JFrame {
         Runner runner = populateRunnerFromFields();
         if (runner != null) {
             //if the ID is -1, this is a new runner - otherwise it's an update
-            if (runner.getPlaceOverall() != -1) {
+            if (runner.getPlaceOverall() != 49999) {
                 runnerDAO.editRunner(runner);
             } else {
                 runnerDAO.addRunner(runner);
@@ -352,7 +352,6 @@ public class RunnerManager extends JFrame {
     }
 
     private void refreshRunnerList() throws Exception {
-		System.out.println("testing");
         List<Runner> runners = runnerDAO.getAllRunners();
 		runnerListModel.clear();
         for (Runner runner : runners) {

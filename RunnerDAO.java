@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import java.lang.*;
 
 public class RunnerDAO {
 	/* Variale Declaration */
@@ -13,7 +14,8 @@ public class RunnerDAO {
 	private String currentdir = System.getProperty("user.dir");
 	private String url = System.getProperty("os.name").contains("OS X") ?
 		"jdbc:ucanaccess:///" + currentdir + "/runners.mdb" : // If OSX, use ucanaccess
-		"jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + currentdir + "\\runners.mdb" ;  // If windows, use odbc.
+		//"jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + currentdir.replace(":\\",":\\\\") + "\\runners.mdb" ;  // If windows, use odbc.
+		"jdbc:ucanaccess//" + currentdir.replace("\\", "\\\\") + "\\\\runners.mdb;"
 	
 	/* Constructor */
     //public RunnerDAO() throws Exception {}
@@ -23,20 +25,33 @@ public class RunnerDAO {
     private Connection getConnection() throws Exception {
 		System.out.println(url);
         log.fine("getConnection called");
-		return DriverManager.getConnection(url);
+		try {
+			return DriverManager.getConnection(url);
+		} catch (Exception e) {
+			System.out.println("Unable to load the mdb file! Make sure that the mdb file is in the same direcotry and ucanaccess jar files in lib directory are included in classpath when compile.");
+		}
     }
 	
-    private void close(ResultSet resultSet, Statement statement, Connection connection) {
-		while (true) {
+    private void close(ResultSet resultSet, Statement statement, Connection connection) throws Exception{
 			try {
-				resultSet.close();
+				System.out.println("Entering close...");
+				if (resultSet != null)
+					resultSet.close();
+				System.out.println("Statement close...");
 				statement.close();
+				System.out.println("Connection close...");
 				connection.close();
-				break;
 			} catch (SQLException e) {
+				System.out.println("Error at close!!");
+				e.printStackTrace();
+			}catch (NullPointerException e){
+				System.out.println("Error at close!!: Nullpo");
+				e.printStackTrace();
+				//throw new ExceptionInInitializerError(e);
+			} catch (Exception e) {
+				System.out.println("Error at close!!: exception");
 				e.printStackTrace();
 			}
-		}
     }
 
 	/*
@@ -111,6 +126,7 @@ public class RunnerDAO {
 		String query =
 			"INSERT INTO Amber (A, B, C, D, E, F, G, H, I, J, K, L, M) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		addEditRunner(runner, query);
+		System.out.println("End addrunner");
     }
 
     public void editRunner(Runner runner) throws Exception {
@@ -124,10 +140,15 @@ public class RunnerDAO {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
+			System.out.println("Connection start");
             connection = getConnection();
+			System.out.println("statement start");
             statement = connection.prepareStatement(query);
+			System.out.println("update runner");
 			updateRunner(statement, runner);
+			System.out.println("end try block in addedit");
         } finally {
+			System.out.println("addedit finally...");
             close(null, statement, connection);
         }
     }
@@ -149,6 +170,7 @@ public class RunnerDAO {
 
 	public void updateRunner(PreparedStatement statement, Runner runner) {
 		try {
+			System.out.println("update runner initiated");
 			int i = 1;
 			statement.setString(i++, String.valueOf(runner.getGender()));
 			statement.setInt(i++, runner.getPlaceOverall());
@@ -161,11 +183,13 @@ public class RunnerDAO {
 			statement.setInt(i++, runner.getBib());
 			statement.setString(i++, runner.getDiv());
 			statement.setInt(i++, runner.getAge());
-			statement.setString(i++, runner.getHalfAsString());
-			statement.setString(i++, runner.getFinishAsString());
-
+			statement.setString(i++, runner.getHalfAsString().substring(1));
+			statement.setString(i++, runner.getFinishAsString().substring(1));
+			
 			statement.executeUpdate();
+			System.out.println("update runner end");
 		} catch (SQLException e) {
+			System.out.println("Error!!");
 			e.printStackTrace();
 		}
 	}
