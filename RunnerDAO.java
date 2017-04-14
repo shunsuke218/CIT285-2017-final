@@ -10,18 +10,18 @@ import java.util.logging.Logger;
 public class RunnerDAO {
 	/* Variale Declaration */
     private static Logger log = Logger.getLogger(RunnerDAO.class.getName());
-
+	private String currentdir = System.getProperty("user.dir");
+	private String url = System.getProperty("os.name").contains("OS X") ?
+		"jdbc:ucanaccess:///" + currentdir + "/runners.mdb" : // If OSX, use ucanaccess
+		"jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + currentdir + "\\runners.mdb" ;  // If windows, use odbc.
+	
 	/* Constructor */
-    public RunnerDAO() throws Exception {
-	   String currentdir = System.getProperty("user.dir");
-	   String url = System.getProperty("os.name").contains("OS X") ?
-		   "jdbc:ucanaccess:///" + currentdir + "/runners.mdb" : // If OSX, use ucanaccess
-		   "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + currentdir + "\\runners.mdb" ;  // If windows, use odbc.
-    }
+    //public RunnerDAO() throws Exception {}
 
 	/* Methods */
 	// Connection and ResultSet
     private Connection getConnection() throws Exception {
+		System.out.println(url);
         log.fine("getConnection called");
 		return DriverManager.getConnection(url);
     }
@@ -76,25 +76,29 @@ public class RunnerDAO {
         try {
             connection = getConnection();
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM Amber ORDER BY B");
+            resultSet = statement.executeQuery("SELECT * FROM Amber ORDER BY CAST(B AS int)"); //Casting num as int.o
 			//log.fine("resultSetToRunners called");
 			while (resultSet.next()) {
+				//System.out.println("initiating runner...");
 				Runner runner = new RunnerBuilder()
 					.Gender(resultSet.getString("A").charAt(0))
 					.PlaceOverall(resultSet.getInt("B"))
-					.PlacecGender(resultSet.getInt("C"))
-					.PlacecDivision(resultSet.getInt("D"))
+					.PlaceGender(resultSet.getInt("C"))
+					.PlaceDivision(resultSet.getString("D").isEmpty() ?
+									0 : Integer.valueOf(resultSet.getString("D")))
 					.LastName(resultSet.getString("E"))
 					.FirstName(resultSet.getString("F"))
 					.Country(resultSet.getString("G"))
 					.Location(resultSet.getString("H"))
 					.Bib(resultSet.getInt("I"))
 					.Div(resultSet.getString("J"))
-					.Age(resultSet.getInt("K"))
+					.Age(resultSet.getString("K").isEmpty() ?
+						 0 : Integer.valueOf(resultSet.getString("K")))
 					.Half(resultSet.getString("L"))
 					.Finish(resultSet.getString("M"))
 					.buildRunner();
 				runners.add(runner);
+				//System.out.println("runner ok");
 			}
             return runners;
         } finally {

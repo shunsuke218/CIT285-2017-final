@@ -39,8 +39,8 @@ public class Runner {
 			Runner shun = new RunnerBuilder()
 					.Gender('M')
 					.PlaceOverall(4344)
-					.PlacecGender(3583)
-					.PlacecDivision(586)
+					.PlaceGender(3583)
+					.PlaceDivision(586)
 					.LastName("Haga")
 					.FirstName("Shunsuke")
 					.Country("JPN")
@@ -57,8 +57,8 @@ public class Runner {
 	// Setter
 	public void setGender (char gender) { this.gender = gender; }
 	public void setPlaceOverall (int plc_overall) { this.plc_overall = plc_overall; }
-	public void setPlacecGender (int plc_gender) { this.plc_gender = plc_gender; }
-	public void setPlacecDivision (int plc_division) { this.plc_division = plc_division; }
+	public void setPlaceGender (int plc_gender) { this.plc_gender = plc_gender; }
+	public void setPlaceDivision (int plc_division) { this.plc_division = plc_division; }
 	public void setLastName (String last_name) { this.last_name = last_name; }
 	public void setFirstName (String first_name) { this.first_name = first_name; }
 	public void setCountry (String country) { this.country = country; }
@@ -66,8 +66,9 @@ public class Runner {
 	public void setBib (int bib) { this.bib = bib; }
 	public void setDiv (String div) { this.div = div; }
 	public void setAge (int age) { this.age = age; }
-	public void setHalf (String half) { this.half = LocalTime.parse(half); };
-	public void setFinish (String finish) { this.finish = LocalTime.parse(finish); }
+	public void setHalf (String half) {
+		this.half = LocalTime.parse((half != null && !half.isEmpty() )? "0" + half : "00:00:00"); }
+	public void setFinish (String finish) { this.finish = LocalTime.parse("0" + finish); } 
 
 	public void setDuration() { this.duration = calcDuration(); }
 	public void setPacePerMile() { this.pace_per_mile = calcPacePerMile(); }
@@ -98,6 +99,7 @@ public class Runner {
 	public double getKiloPerHour() { return kilo_per_hour; }
     public boolean getIsSubThree() { return is_sub_three; }
 
+	public String getName() {return first_name + " " + last_name; }
 	public String getHalfAsString() { return half.format(format); }
 	public String getFinishAsString() { return finish.format(format); }
 	public String getPacePerMileAsString() { return pace_per_mile.format(format); }
@@ -129,7 +131,8 @@ public class Runner {
 	boolean isSubThree() { return this.duration.toMillis() <= 1080000L; }
     
 
-    public String names() { return first_name + " " + last_name; }
+    public String name() { return first_name + " " + last_name; }
+	/*
 	public String toString() {
 		String result = 
 		"[ Gender:" + gender +
@@ -154,4 +157,7 @@ public class Runner {
 			", IsSubThree:" + is_sub_three + " ]";
 		return result;
 	}
+	*/
+	@Override
+	public String toString() { return this.name(); }
 }
