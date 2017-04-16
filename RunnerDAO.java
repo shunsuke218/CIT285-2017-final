@@ -15,7 +15,7 @@ public class RunnerDAO {
 	private String url = System.getProperty("os.name").contains("OS X") ?
 		"jdbc:ucanaccess:///" + currentdir + "/runners.mdb" : // If OSX, use ucanaccess
 		//"jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=" + currentdir.replace(":\\",":\\\\") + "\\runners.mdb" ;  // If windows, use odbc.
-		"jdbc:ucanaccess//" + currentdir.replace("\\", "\\\\") + "\\\\runners.mdb;"
+		"jdbc:ucanaccess://" + currentdir.replace("\\", "\\\\") + "\\\\runners.mdb;";
 	
 	/* Constructor */
     //public RunnerDAO() throws Exception {}
@@ -28,16 +28,16 @@ public class RunnerDAO {
 		try {
 			return DriverManager.getConnection(url);
 		} catch (Exception e) {
-			System.out.println("Unable to load the mdb file! Make sure that the mdb file is in the same direcotry and ucanaccess jar files in lib directory are included in classpath when compile.");
+			System.out.println("Unable to load the mdb file! Make sure that the mdb file is in the same direcotry and ucanaccess jar files in the lib directory are included in classpath when compile.");
+			System.exit(0);
 		}
+		return null;
     }
 	
     private void close(ResultSet resultSet, Statement statement, Connection connection) throws Exception{
 			try {
-				System.out.println("Entering close...");
 				if (resultSet != null)
 					resultSet.close();
-				System.out.println("Statement close...");
 				statement.close();
 				System.out.println("Connection close...");
 				connection.close();

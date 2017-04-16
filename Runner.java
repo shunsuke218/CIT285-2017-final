@@ -104,6 +104,8 @@ public class Runner {
 	public String getFinishAsString() { return finish.format(format); }
 	public String getPacePerMileAsString() { return pace_per_mile.format(format); }
 	public String getPacePerKiloAsString() { return pace_per_kilo.format(format); }
+	public String getMilesPerHourAsString() { return String.format("%.3f", miles_per_hour) + " mph"; }
+	public String getKiloPerHourAsString() { return String.format("%.3f", kilo_per_hour) + " km/h"; }
 	
 	/* Methods */
 	public void calculate () {
