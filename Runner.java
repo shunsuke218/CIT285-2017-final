@@ -130,7 +130,7 @@ public class Runner {
 		Duration duration = Duration.between ( LocalTime.MIN , this.finish );
 		return 42.195 / (double)duration.toMillis() * ( 60 * 60 * 1000 );
 	}
-	boolean isSubThree() { return this.duration.toMillis() <= 1080000L; }
+	boolean isSubThree() { return this.duration.toMillis() <= 10800000L; }
     
 
     public String name() { return first_name + " " + last_name; }

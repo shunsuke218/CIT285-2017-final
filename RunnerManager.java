@@ -10,12 +10,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
+import java.util.logging.*;//ConsoleHandler;
+import java.util.Random;
+/*
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+*/
 //import java.text.NumberFormat;
 //import java.text.DecimalFormat;
 
@@ -45,6 +48,7 @@ public class RunnerManager extends JFrame {
 	private JTextField LocationField;
 	private JTextField BibField;
 	private JTextField DivField;
+	private JComboBox DivBox;
 	private JTextField AgeField;
 	private JTextField HalfField;
 	private JTextField FinishField;
@@ -53,8 +57,12 @@ public class RunnerManager extends JFrame {
 	private JTextField PacePerKiloField;
 	private JTextField MilesPerHourField;
 	private JTextField KiloPerHourField;
-	private JTextField SubThreeField;
+	//private JTextField SubThreeField;
+	private JCheckBox SubThreeCheckBox;
+	private String[] labelStrings = { "16-19", "18-24", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69" };
+	
 
+	
 	////////////////////////////////////////////////////
 	// CONSTRUCTOR/LAUNCH GUI
 	////////////////////////////////////////////////////
@@ -84,15 +92,18 @@ public class RunnerManager extends JFrame {
         CountryField = addLabelAndTextField("Country", 10, true, centerPanel);
         LocationField = addLabelAndTextField("Location", 10, true, centerPanel);
         BibField = addLabelAndTextField("Bib", 10, true, centerPanel);
-        DivField = addLabelAndTextField("Div", 10, true, centerPanel);
-        AgeField = addLabelAndTextField("Age", 10, true, centerPanel);
+        //DivField = addLabelAndTextField("Div", 10, true, centerPanel);
+		DivBox = addLabelAndComboBox("Div", centerPanel);
+		AgeField = addLabelAndTextField("Age", 10, true, centerPanel);
         HalfField = addLabelAndTextField("Half", 10, true, centerPanel);
         FinishField = addLabelAndTextField("Finish", 10, true, centerPanel);
         PacePerMileField = addLabelAndTextField("PacePerMile", 100, false, centerPanel);
         PacePerKiloField = addLabelAndTextField("PacePerKilo", 100, false, centerPanel);
         MilesPerHourField = addLabelAndTextField("MilesPerHour", 100, false, centerPanel);
         KiloPerHourField = addLabelAndTextField("KiloPerHour", 100, false, centerPanel);
-		SubThreeField = addLabelAndTextField("Is sub-3?", 100, false, centerPanel);
+		//SubThreeField = addLabelAndTextField("Is sub-3?", 100, false, centerPanel);
+		SubThreeCheckBox = addLabelAndCheckBox("Is sub-3?", false, centerPanel);
+
         add(centerPanel, BorderLayout.CENTER);
 		System.out.println("CENTER is ready");
 
@@ -119,6 +130,7 @@ public class RunnerManager extends JFrame {
 			{ public void actionPerformed(ActionEvent event) { viewRunner(); }});
         eastPanelBottom.add(viewButton, constraints);
 
+		/*
         constraints.gridy = 1;
         JButton editButton = new JButton("Edit");
         editButton.addActionListener(new ActionListener()
@@ -130,7 +142,20 @@ public class RunnerManager extends JFrame {
         deleteButton.addActionListener(new ActionListener()
 			{ public void actionPerformed(ActionEvent event) { deleteRunner(); }});
         eastPanelBottom.add(deleteButton, constraints);
+		*/
 		
+        constraints.gridy = 1;
+        JButton randomButton = new JButton("Random");
+        randomButton.addActionListener(new ActionListener()
+			{ public void actionPerformed(ActionEvent event) { randomRunner(); }});
+        eastPanelBottom.add(randomButton, constraints);
+
+        constraints.gridy = 2;
+        JButton meButton = new JButton("Me!");
+        meButton.addActionListener(new ActionListener()
+			{ public void actionPerformed(ActionEvent event) { findMe(); }});
+        eastPanelBottom.add(meButton, constraints);
+
         eastPanel.add(eastPanelBottom);
         add(eastPanel, BorderLayout.EAST);
 		System.out.println("EAST is ready");
@@ -148,7 +173,7 @@ public class RunnerManager extends JFrame {
 					saveButton.setEnabled(true);
 				}
 			});
-        southPanel.add(newButton);
+        //southPanel.add(newButton);
 
         saveButton = new JButton("Save");
         saveButton.setEnabled(false);
@@ -162,9 +187,10 @@ public class RunnerManager extends JFrame {
 					}
 				}
 			});
-        southPanel.add(saveButton);
+        //southPanel.add(saveButton);
 
         add(southPanel, BorderLayout.SOUTH);
+
 		System.out.println("GUI is ready");
         //show the UI
         setVisible(true);
@@ -184,8 +210,22 @@ public class RunnerManager extends JFrame {
         panel.add(textField);
         if (textFieldIsEditable)
             editableTextFields.add(textField);
-        allTextFields.add(textField);
         return textField;
+    }
+	// when creates a checkbox with a field
+    private JCheckBox addLabelAndCheckBox(String label, boolean checkBoxIsEditable, JPanel panel) {
+		JCheckBox checkBox = new JCheckBox(label);
+        //checkBox.setEnable(false);
+        panel.add(checkBox);
+        return checkBox;
+    }
+
+    private JComboBox addLabelAndComboBox(String label, JPanel panel) {
+		panel.add(new JLabel(label));
+		JComboBox comboBox = new JComboBox(labelStrings);
+		comboBox.setSelectedIndex(0);
+        panel.add(comboBox);
+        return comboBox;
     }
 
 	// Manipulate text fields
@@ -199,6 +239,7 @@ public class RunnerManager extends JFrame {
         for (JTextField textField : allTextFields) {
             textField.setText("");
         }
+		SubThreeCheckBox.setSelected(false);
         idField.setText("-1");
     }
 
@@ -211,16 +252,18 @@ public class RunnerManager extends JFrame {
 		CountryField.setText(runner.getCountry());
 		LocationField.setText(runner.getLocation());
 		BibField.setText(String.valueOf(runner.getBib()));
-		DivField.setText(runner.getDiv());
+		//DivField.setText(runner.getDiv());
+		DivBox.setSelectedItem(String.valueOf(runner.getDiv()));
 		AgeField.setText(String.valueOf(runner.getAge()));
 		HalfField.setText(runner.getHalfAsString().substring(1));
 		FinishField.setText(runner.getFinishAsString().substring(1));
 
 		PacePerMileField.setText(String.valueOf(runner.getPacePerMileAsString()));
 		PacePerKiloField.setText(String.valueOf(runner.getPacePerKiloAsString()));
-		MilesPerHourField.setText(String.valueOf(runner.getMilesPerHour()));
-		KiloPerHourField.setText(String.valueOf(runner.getKiloPerHour()));
-		SubThreeField.setText(String.valueOf(runner.getIsSubThree()));
+		MilesPerHourField.setText(runner.getMilesPerHourAsString());
+		KiloPerHourField.setText(runner.getKiloPerHourAsString());
+		//SubThreeField.setText(String.valueOf(runner.getIsSubThree()));
+		SubThreeCheckBox.setSelected(runner.getIsSubThree());
     }
     private Runner populateRunnerFromFields() {
         try {
@@ -232,7 +275,8 @@ public class RunnerManager extends JFrame {
 			String Country = CountryField.getText();
 			String Location = LocationField.getText();
 			int Bib = Integer.valueOf(BibField.getText());
-			String Div = DivField.getText();
+			String Div = DivBox.getSelectedItem().toString();
+			//String Div = DivField.getText();
 			int Age = Integer.valueOf(AgeField.getText());
 			String Half = HalfField.getText();
 			String Finish = FinishField.getText();
@@ -292,6 +336,17 @@ public class RunnerManager extends JFrame {
         return (Runner) runnerListModel.getElementAt(selectedIndex);
     }
 
+	private void findMe() {
+		runnerList.setSelectedIndex(4343);
+		viewRunner();
+    }
+
+    private void randomRunner() {
+		int maxsize = runnerListModel.getSize();
+		runnerList.setSelectedIndex(new Random().nextInt(maxsize));
+		viewRunner();
+    }
+	
     private void deleteRunner() {
         Runner runner = getSelectedRunner();
         if (runner != null) {
